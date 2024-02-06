@@ -10,7 +10,7 @@ Now you can peacefully do your deeds!!!
 
 # Note
 
-I will not update this bot further. (probably)
+I will not update this bot further (probably). 
 I will not take any responsibility for the usage of this product; use it at your own discretion.
 Enjoy <3
 
