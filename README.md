@@ -8,7 +8,9 @@ I have a solution for you!
 "Stying's Hentai Bot" uses Waifu.im api for their Hentai's!
 Now you can peacefully do your deeds!!!
 
+# Note
 
+I will not take any responsibility for the usage of this product; use it at your own discretion.
 
 # Credits 
 
