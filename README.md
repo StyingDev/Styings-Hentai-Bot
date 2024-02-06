@@ -1,7 +1,11 @@
-# Stying's Hentai Bot
+# Introducing Stying's Hentai Bot!
 
-Are you tried of all the bots that use Hentais from reddit??
-well you are on luck I have a solution for you!
-"Stying's Hentai Bot" uses waifu.im api for the hentais!
-now you can peacefully use a discord bot without a reddit hentai fetcher!
+Are you tried of all the bots that use Hentai from Reddit??
+
+Well you are on luck! 
+I have a solution for you!
+
+"Stying's Hentai Bot" uses Waifu.im api for their Hentai's!
+Now you can peacefully do your deeds!!!
+
 
