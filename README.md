@@ -11,8 +11,7 @@ Now you can peacefully do your deeds!!!
 
 
 # Credits 
+
 🌲linktr.ee/Stying
-
 Or @Stying on discord.
-
 
