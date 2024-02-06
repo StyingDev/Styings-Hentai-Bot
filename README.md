@@ -11,7 +11,7 @@ Now you can peacefully do your deeds!!!
 
 
 # Credits 
-!🌲(https://discord.com/assets/df75692ef6187615ae72.svg)linktr.ee/Stying
+🌲linktr.ee/Stying
 
 Or @Stying on discord.
 
