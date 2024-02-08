@@ -1,12 +1,12 @@
 import os
 import discord
 from discord.ext import commands
-import requests
+import aiohttp
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='h!', intents=intents)
 
 WAIFU_IM_SEARCH_URL = 'https://api.waifu.im/search/'
 
@@ -15,6 +15,12 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="🌲linktr.ee/Stying"))
     print(f'We have logged in as {bot.user.name}')
 
+async def fetch_hentai_image(session, ctx):
+    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': 'hentai'}) as response:
+        response.raise_for_status()
+        data = await response.json()
+        return data
+
 @bot.hybrid_command(name='hentai', help='Fetch Hentai image or gif')
 async def get_hentai_image(ctx):
     try:
@@ -22,24 +28,16 @@ async def get_hentai_image(ctx):
             await ctx.send("You can only use the !hentai command in NSFW channels.")
             return
 
-        # Define search parameters
-        search_params = {
-            'included_tags': 'hentai',
-        }
+        async with aiohttp.ClientSession() as session:
+            data = await fetch_hentai_image(session, ctx)
 
-        # Make a request to the waifu.im API
-        response = requests.get(WAIFU_IM_SEARCH_URL, params=search_params)
-        response.raise_for_status()  # Raise an exception for 4xx or 5xx errors
-
-        # Parse the JSON response
-        data = response.json()
-
-        # Extract the first image or gif URL from the array
+        # Process the API response
         media_list = data.get('images', [])
         if not media_list:
             await ctx.send("No hentai waifu found.")
             return
 
+        # Find the first image or gif URL
         media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
         if media is None:
             await ctx.send("No hentai waifu found.")
@@ -47,13 +45,8 @@ async def get_hentai_image(ctx):
 
         media_url = media.get('url')
 
-        # Create an embed with color #747c8b and footer information
-        embed = discord.Embed(color=discord.Color(0x747c8b))
-        embed.set_image(url=media_url)
-        embed.set_footer(text=f'Requested by {ctx.author.name}')
-
-        # Send the embed to the Discord channel
-        await ctx.send(embed=embed)
+        # Send just the image or gif URL
+        await ctx.send(media_url)
 
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
