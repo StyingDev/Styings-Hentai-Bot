@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 import aiohttp
+import urllib.parse
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,149 +17,93 @@ async def on_ready():
     await bot.tree.sync()
     print(f'We have logged in as {bot.user.name}')
 
-async def fetch_hentai_image(session):
-    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': 'hentai'}) as response:
+async def fetch_image(session, tag):
+    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': tag}) as response:
         response.raise_for_status()
-        data = await response.json()
-        return data
+        return await response.json()
 
-async def fetch_milf_image(session):
-    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': 'milf'}) as response:
-        response.raise_for_status()
-        data = await response.json()
-        return data
+async def send_embed_image(ctx, data, title_prefix):
+    media_list = data.get('images', [])
+    if not media_list:
+        await ctx.send(f"No waifu image found for the requested tag.")
+        return
 
-async def fetch_paizuri_image(session):
-    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': 'paizuri'}) as response:
-        response.raise_for_status()
-        data = await response.json()
-        return data
+    media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
+    if media is None:
+        await ctx.send(f"No waifu image found for the requested tag.")
+        return
 
-async def fetch_oral_image(session):
-    async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': 'oral'}) as response:
-        response.raise_for_status()
-        data = await response.json()
-        return data
+    media_url = media.get('url')
+    media_extension = urllib.parse.urlparse(media_url).path.split('.')[-1]
+
+    title = f"{title_prefix} {'GIF' if media_extension == 'gif' else 'Image'}"
+
+    embed = discord.Embed(title=title, color=discord.Color(0x747c8b))
+    embed.set_image(url=media_url)
+    embed.set_footer(text=f'Requested by @{ctx.author.name}')
+
+    await ctx.send(embed=embed)
 
 @bot.hybrid_command(name='hentai', help='Fetch Hentai image or gif')
 async def get_hentai_image(ctx):
+    if not ctx.channel.is_nsfw():
+        await ctx.send("You can only use the /hentai command in NSFW channels.")
+        return
+
     try:
-        if not ctx.channel.is_nsfw():
-            await ctx.send("You can only use the /hentai command in NSFW channels.")
-            return
-
         async with aiohttp.ClientSession() as session:
-            data = await fetch_hentai_image(session)
+            data = await fetch_image(session, 'hentai')
 
-        # Process the API response
-        media_list = data.get('images', [])
-        if not media_list:
-            await ctx.send("No hentai waifu found.")
-            return
-
-        # Find the first image or gif URL
-        media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
-        if media is None:
-            await ctx.send("No hentai waifu found.")
-            return
-
-        media_url = media.get('url')
-
-        # Send just the image or gif URL
-        await ctx.send(media_url)
+        await send_embed_image(ctx, data, 'Hentai')
 
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
 
 @bot.hybrid_command(name='milf', help='Fetch MILF image or gif')
 async def get_milf_image(ctx):
+    if not ctx.channel.is_nsfw():
+        await ctx.send("You can only use the /milf command in NSFW channels.")
+        return
+
     try:
-        if not ctx.channel.is_nsfw():
-            await ctx.send("You can only use the /milf command in NSFW channels.")
-            return
-
         async with aiohttp.ClientSession() as session:
-            data = await fetch_milf_image(session)
+            data = await fetch_image(session, 'milf')
 
-        # Process the API response
-        media_list = data.get('images', [])
-        if not media_list:
-            await ctx.send("No MILF waifu found.")
-            return
-
-        # Find the first image or gif URL
-        media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
-        if media is None:
-            await ctx.send("No MILF waifu found.")
-            return
-
-        media_url = media.get('url')
-
-        # Send just the image or gif URL
-        await ctx.send(media_url)
+        await send_embed_image(ctx, data, 'MILF')
 
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
 
 @bot.hybrid_command(name='paizuri', help='Fetch Paizuri image or gif')
 async def get_paizuri_image(ctx):
+    if not ctx.channel.is_nsfw():
+        await ctx.send("You can only use the /paizuri command in NSFW channels.")
+        return
+
     try:
-        if not ctx.channel.is_nsfw():
-            await ctx.send("You can only use the /paizuri command in NSFW channels.")
-            return
-
         async with aiohttp.ClientSession() as session:
-            data = await fetch_paizuri_image(session)
+            data = await fetch_image(session, 'paizuri')
 
-        # Process the API response
-        media_list = data.get('images', [])
-        if not media_list:
-            await ctx.send("No Paizuri waifu found.")
-            return
-
-        # Find the first image or gif URL
-        media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
-        if media is None:
-            await ctx.send("No Paizuri waifu found.")
-            return
-
-        media_url = media.get('url')
-
-        # Send just the image or gif URL
-        await ctx.send(media_url)
+        await send_embed_image(ctx, data, 'Paizuri')
 
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
 
 @bot.hybrid_command(name='oral', help='Fetch Oral image or gif')
 async def get_oral_image(ctx):
+    if not ctx.channel.is_nsfw():
+        await ctx.send("You can only use the /oral command in NSFW channels.")
+        return
+
     try:
-        if not ctx.channel.is_nsfw():
-            await ctx.send("You can only use the /oral command in NSFW channels.")
-            return
-
         async with aiohttp.ClientSession() as session:
-            data = await fetch_oral_image(session)
+            data = await fetch_image(session, 'oral')
 
-        # Process the API response
-        media_list = data.get('images', [])
-        if not media_list:
-            await ctx.send("No Oral waifu found.")
-            return
-
-        # Find the first image or gif URL
-        media = next((item for item in media_list if item.get('extension') in ('.jpeg', '.jpg', '.png', '.gif')), None)
-        if media is None:
-            await ctx.send("No Oral waifu found.")
-            return
-
-        media_url = media.get('url')
-
-        # Send just the image or gif URL
-        await ctx.send(media_url)
+        await send_embed_image(ctx, data, 'Oral')
 
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
+
 try:
     token = os.getenv("TOKEN")
     if token == "":
