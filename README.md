@@ -1,4 +1,4 @@
-# Introducing Stying's Hentai Bot!
+# Introducing Stying's Hentai Bot! 🔞⛔
 
 Are you tried of all the bots that use Hentai from Reddit??
 
