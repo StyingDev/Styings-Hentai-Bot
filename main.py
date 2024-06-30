@@ -4,11 +4,11 @@ from discord.ext import commands
 import aiohttp
 import urllib.parse
 
+token = "Your_Discord_token"
+
 intents = discord.Intents.default()
 intents.message_content = True
-
 bot = commands.Bot(command_prefix='h!', intents=intents)
-
 WAIFU_IM_SEARCH_URL = 'https://api.waifu.im/search/'
 
 @bot.event
@@ -16,7 +16,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="🌲linktr.ee/Stying"))
     await bot.tree.sync()
     print(f'We have logged in as {bot.user.name}')
-
+    
 async def fetch_image(session, tag):
     async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': tag}) as response:
         response.raise_for_status()
@@ -104,13 +104,4 @@ async def get_oral_image(ctx):
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
 
-try:
-    token = os.getenv("TOKEN")
-    if token == "":
-        raise Exception("Please add your Discord bot token.")
     bot.run(token)
-except discord.HTTPException as e:
-    if e.status == 429:
-        print("The Discord servers denied the connection for making too many requests")
-    else:
-        raise e
