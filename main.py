@@ -1,4 +1,3 @@
-import os
 import discord
 from discord.ext import commands
 import aiohttp
@@ -8,7 +7,9 @@ token = "Your_Discord_token"
 
 intents = discord.Intents.default()
 intents.message_content = True
+
 bot = commands.Bot(command_prefix='h!', intents=intents)
+
 WAIFU_IM_SEARCH_URL = 'https://api.waifu.im/search/'
 
 @bot.event
@@ -16,7 +17,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="🌲linktr.ee/Stying"))
     await bot.tree.sync()
     print(f'We have logged in as {bot.user.name}')
-    
+
 async def fetch_image(session, tag):
     async with session.get(WAIFU_IM_SEARCH_URL, params={'included_tags': tag}) as response:
         response.raise_for_status()
@@ -41,6 +42,19 @@ async def send_embed_image(ctx, data, title_prefix):
     embed = discord.Embed(title=title, color=discord.Color(0x747c8b))
     embed.set_image(url=media_url)
     embed.set_footer(text=f'Requested by @{ctx.author.name}')
+
+    await ctx.send(embed=embed)
+
+bot.remove_command("help")
+
+@bot.hybrid_command(name='help', help='Execute for help.')
+async def help(ctx):
+    embed = discord.Embed(title="Hentai Bot Help", description="Here are the available commands for the hentai Bot:", color=discord.Color(0x747c8b))
+
+    embed.add_field(name="/hentai", value="Fetch Hentai image or gif.", inline=False)
+    embed.add_field(name="/milf", value="Fetch MILF image or gif.", inline=False)
+    embed.add_field(name="/paizuri", value="Fetch Paizuri image or gif.", inline=False)
+    embed.add_field(name="/oral", value="Fetch Oral image or gif.", inline=False)
 
     await ctx.send(embed=embed)
 
@@ -104,4 +118,5 @@ async def get_oral_image(ctx):
     except Exception as e:
         await ctx.send(f'An unexpected error occurred: {e}')
 
-    bot.run(token)
+
+bot.run(token)
